@@ -1,3 +1,4 @@
+#include <type_traits>
 #include "gtest/gtest.h"
 
 #include "fault_injection.h"
@@ -5,6 +6,12 @@
 #include "circular_buffer.h"
 
 using container = circular_buffer<counted>;
+
+template <class T>
+const T& as_const(T& t) noexcept
+{
+    return t;
+}
 
 template<typename It>
 void dump(It first, It last) {
@@ -84,9 +91,9 @@ TEST(correctness, back_front) {
     container c;
     mass_push_back(c, {1, 2, 3, 4, 5});
     EXPECT_EQ(1, c.front());
-    EXPECT_EQ(1, std::as_const(c).front());
+    EXPECT_EQ(1, as_const(c).front());
     EXPECT_EQ(5, c.back());
-    EXPECT_EQ(5, std::as_const(c).back());
+    EXPECT_EQ(5, as_const(c).back());
 }
 
 TEST(correctness, back_front_ref) {
@@ -104,8 +111,8 @@ TEST(correctness, back_front_cref) {
 
     container c;
     mass_push_back(c, {1, 2, 3, 4, 5});
-    EXPECT_TRUE(&c.front() == &std::as_const(c).front());
-    EXPECT_TRUE(&c.back() == &std::as_const(c).back());
+    EXPECT_TRUE(&c.front() == &as_const(c).front());
+    EXPECT_TRUE(&c.back() == &as_const(c).back());
 }
 
 void magic(counted &c) {
@@ -119,8 +126,8 @@ TEST(correctness, back_front_ncref) {
 
     container c;
     mass_push_back(c, {1, 2, 3, 4, 5});
-    magic(std::as_const(c).front());
-    magic(std::as_const(c).back());
+    magic(as_const(c).front());
+    magic(as_const(c).back());
 
     expect_eq(c, {1, 2, 3, 4, 5});
 }
@@ -235,32 +242,32 @@ TEST(correctness, iterator_conversions) {
     EXPECT_FALSE(i2 != i1);
     EXPECT_FALSE(i2 != i2);
 
-    EXPECT_TRUE(std::as_const(i1) == i1);
-    EXPECT_TRUE(std::as_const(i1) == i2);
-    EXPECT_TRUE(std::as_const(i2) == i1);
-    EXPECT_TRUE(std::as_const(i2) == i2);
-    EXPECT_FALSE(std::as_const(i1) != i1);
-    EXPECT_FALSE(std::as_const(i1) != i2);
-    EXPECT_FALSE(std::as_const(i2) != i1);
-    EXPECT_FALSE(std::as_const(i2) != i2);
+    EXPECT_TRUE(as_const(i1) == i1);
+    EXPECT_TRUE(as_const(i1) == i2);
+    EXPECT_TRUE(as_const(i2) == i1);
+    EXPECT_TRUE(as_const(i2) == i2);
+    EXPECT_FALSE(as_const(i1) != i1);
+    EXPECT_FALSE(as_const(i1) != i2);
+    EXPECT_FALSE(as_const(i2) != i1);
+    EXPECT_FALSE(as_const(i2) != i2);
 
-    EXPECT_TRUE(i1 == std::as_const(i1));
-    EXPECT_TRUE(i1 == std::as_const(i2));
-    EXPECT_TRUE(i2 == std::as_const(i1));
-    EXPECT_TRUE(i2 == std::as_const(i2));
-    EXPECT_FALSE(i1 != std::as_const(i1));
-    EXPECT_FALSE(i1 != std::as_const(i2));
-    EXPECT_FALSE(i2 != std::as_const(i1));
-    EXPECT_FALSE(i2 != std::as_const(i2));
+    EXPECT_TRUE(i1 == as_const(i1));
+    EXPECT_TRUE(i1 == as_const(i2));
+    EXPECT_TRUE(i2 == as_const(i1));
+    EXPECT_TRUE(i2 == as_const(i2));
+    EXPECT_FALSE(i1 != as_const(i1));
+    EXPECT_FALSE(i1 != as_const(i2));
+    EXPECT_FALSE(i2 != as_const(i1));
+    EXPECT_FALSE(i2 != as_const(i2));
 
-    EXPECT_TRUE(std::as_const(i1) == std::as_const(i1));
-    EXPECT_TRUE(std::as_const(i1) == std::as_const(i2));
-    EXPECT_TRUE(std::as_const(i2) == std::as_const(i1));
-    EXPECT_TRUE(std::as_const(i2) == std::as_const(i2));
-    EXPECT_FALSE(std::as_const(i1) != std::as_const(i1));
-    EXPECT_FALSE(std::as_const(i1) != std::as_const(i2));
-    EXPECT_FALSE(std::as_const(i2) != std::as_const(i1));
-    EXPECT_FALSE(std::as_const(i2) != std::as_const(i2));
+    EXPECT_TRUE(as_const(i1) == as_const(i1));
+    EXPECT_TRUE(as_const(i1) == as_const(i2));
+    EXPECT_TRUE(as_const(i2) == as_const(i1));
+    EXPECT_TRUE(as_const(i2) == as_const(i2));
+    EXPECT_FALSE(as_const(i1) != as_const(i1));
+    EXPECT_FALSE(as_const(i1) != as_const(i2));
+    EXPECT_FALSE(as_const(i2) != as_const(i1));
+    EXPECT_FALSE(as_const(i2) != as_const(i2));
 }
 
 TEST(correctness, iterators_postfix) {
