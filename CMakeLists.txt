@@ -18,6 +18,6 @@ add_executable(test_deque
         counted.h
         fault_injection.cpp
         fault_injection.h
-        tests.cpp circular2.h)
+        tests.cpp circular_buffer.h)
 
 target_link_libraries(test_deque -lgmp -lgmpxx -lpthread)
