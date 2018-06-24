@@ -508,3 +508,15 @@ TEST(fault_injection, copy_ctr) {
         expect_eq(c, {1, 2, 3, 4});
     });
 }
+
+TEST(correctness, swap_iterators) {
+    circular_buffer <int> a;
+    circular_buffer <int> b;
+    mass_push_back(a, {1, 2, 3});
+    mass_push_back(b, {4, 5, 6});
+    auto it_a = a.begin();
+    auto it_b = b.begin();
+    swap(a, b);
+    EXPECT_EQ(*it_a, 1);
+    EXPECT_EQ(*it_b, 4);
+}
