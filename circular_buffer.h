@@ -93,17 +93,14 @@ private:
             if (dist_a == dist_b) {
                 return 0;
             }
-            if (dist_a > dist_b) {
-                return 1;
-            }
-        };
+            return 1;
+        }
         static size_t distance(my_iterator const &a) {
             if (a.right >= a.left) {
                 return a.pos - a.left;
-            } else {
-                return a.capacity - 1 - a.left + a.pos;
             }
-        };
+            return a.capacity - 1 - a.left + a.pos;
+        }
     };
 
 public:
