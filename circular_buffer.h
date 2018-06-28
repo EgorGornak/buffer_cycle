@@ -143,6 +143,7 @@ public:
     iterator insert(const_iterator pos, T const &value);
     iterator erase(const_iterator pos);
     T& operator[](size_t pos);
+    T const &operator[](size_t pos) const;
     bool empty();
     void clear();
     size_t size();
@@ -152,7 +153,7 @@ public:
 private:
     void ensure_capacity();
     size_t prev(size_t x);
-    size_t next(size_t x);
+    size_t next(size_t x) const;
     size_t abs(ptrdiff_t x);
 
     size_t size_, capacity;
@@ -293,7 +294,7 @@ size_t circular_buffer<T>::prev(size_t x) {
 }
 
 template<typename T>
-size_t circular_buffer<T>::next(size_t x) {
+size_t circular_buffer<T>::next(size_t x) const {
     if (x == capacity - 1) {
         x = 0;
     } else {
@@ -379,7 +380,7 @@ typename circular_buffer<T>::iterator circular_buffer<T>::end() {
     if (size_ == 0) {
         return iterator(right, capacity, left, right, array);
     }
-    return iterator(right + 1, capacity, left, right, array);
+    return iterator(next(right), capacity, left, right, array);
 }
 
 template<typename T>
@@ -387,7 +388,7 @@ typename circular_buffer<T>::const_iterator circular_buffer<T>::end() const {
     if (size_ == 0) {
         return const_iterator(right, capacity, left, right, array);
     }
-    return const_iterator(right + 1, capacity, left, right, array);
+    return const_iterator(next(right), capacity, left, right, array);
 }
 
 template<typename T>
@@ -525,6 +526,12 @@ circular_buffer<T>::circular_buffer(size_t capacity) : size_(0), capacity(capaci
     if (array == nullptr) {
         throw std::bad_alloc();
     }
+}
+
+template<typename T>
+T const &circular_buffer<T>::operator[](size_t pos) const {
+    assert(pos < size_);
+    return array[(pos + left)%capacity];
 }
 
 
