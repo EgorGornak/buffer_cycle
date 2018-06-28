@@ -96,10 +96,16 @@ private:
             return 1;
         }
         static size_t distance(my_iterator const &a) {
-            if (a.right >= a.left) {
+            if (a.pos >= a.left) {
                 return a.pos - a.left;
             }
-            return a.capacity - 1 - a.left + a.pos;
+            return a.pos + a.capacity - a.left;
+        }
+        size_t distance() {
+            if (pos >= left) {
+                return pos - left;
+            }
+            return pos + capacity - left;
         }
     };
 
@@ -447,8 +453,8 @@ void circular_buffer<T>::swap(circular_buffer &other) {
 
 template<typename T>
 typename circular_buffer<T>::iterator circular_buffer<T>::insert(const_iterator it, const T &value) {
-    size_t distance_left = abs(static_cast<ptrdiff_t>(it.pos) - static_cast<ptrdiff_t>(left));
-    size_t distance_right = abs(static_cast<ptrdiff_t>(it.pos) - static_cast<ptrdiff_t>(right));
+    size_t distance_left = it.distance();
+    size_t distance_right = size_ - it.distance();
     if (size_ == capacity - 1) {
         ensure_capacity();
     }
@@ -486,22 +492,23 @@ typename circular_buffer<T>::iterator circular_buffer<T>::insert(const_iterator 
 template<typename T>
 typename circular_buffer<T>::iterator circular_buffer<T>::erase(const_iterator it) {
     assert(size_ > 0);
-    size_t distance_left = abs(static_cast<ptrdiff_t>(it.pos) - static_cast<ptrdiff_t>(left));
-    size_t distance_right = abs(static_cast<ptrdiff_t>(it.pos) - static_cast<ptrdiff_t>(right));
+
+    size_t distance_left = it.distance();
+    size_t distance_right = size_ - distance_left;
 
     size_t curr_pos = it.pos;
     if (distance_left < distance_right) {
         size_t prev_pos = prev(it.pos);
-        for (size_t i = 0; i < distance_left; ++i) {
+        while(curr_pos != left) {
             std::swap(array[prev_pos], array[curr_pos]);
             curr_pos = prev_pos;
             prev_pos = prev(prev_pos);
         }
         pop_front();
-        return iterator(it.pos + 1, capacity, left, right, array);
+        return iterator(next(it.pos), capacity, left, right, array);
     } else {
         size_t next_pos = next(it.pos);
-        for (size_t i = 0; i < distance_right; ++i) {
+        while (curr_pos != right) {
             std::swap(array[next_pos], array[curr_pos]);
             curr_pos = next_pos;
             next_pos = next(next_pos);
