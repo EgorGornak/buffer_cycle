@@ -25,7 +25,6 @@ int main()
     it++;
     std::cout << *it << ' ';
     it++;
-    auto it2= c.end();
     std::cout << (it == c.end());
 
     //expect_eq(c, {95, 96, 97, 98, 99});
